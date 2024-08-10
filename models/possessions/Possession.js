@@ -1,11 +1,13 @@
+
 export default class Possession {
-  constructor(possesseur, libelle, valeur, dateDebut, dateFin, tauxAmortissement) {
+  constructor(possesseur, libelle, valeur, dateDebut, dateFin, tauxAmortissement, valeurConstante) {
     this.possesseur = possesseur;
     this.libelle = libelle;
     this.valeur = valeur;
-    this.dateDebut = dateDebut;
-    this.dateFin = dateFin;
+    this.dateDebut = new Date(dateDebut);
+    this.dateFin = dateFin ? new Date(dateFin) : null;
     this.tauxAmortissement = tauxAmortissement;
+    this.valeurConstante = valeurConstante;
   }
 
   getValeur(date) {
@@ -13,18 +15,43 @@ export default class Possession {
   }
 
   getValeurApresAmortissement(dateActuelle) {
-    if (dateActuelle < this.dateDebut) {
-      return 0;
-    }
-    const differenceDate = {
-      year: dateActuelle.getFullYear() - this.dateDebut.getFullYear(),
-      month: dateActuelle.getMonth() - this.dateDebut.getMonth(),
-      day: dateActuelle.getDate() - this.dateDebut.getDate(),
-    };
-  
-    var raison = differenceDate.year + differenceDate.month / 12 + differenceDate.day / 365;
+    const date = new Date(dateActuelle);
+    const dateDebut = this.dateDebut;
+    const dateFin = this.dateFin ? this.dateFin : date;
 
-    const result = this.valeur - this.valeur *(raison * this.tauxAmortissement / 100);
-    return result;
+    if (date < dateDebut) return 0;
+
+    if (this.valeurConstante) {
+      let moisDepuisDebut =
+        (date.getFullYear() - dateDebut.getFullYear()) * 12 +
+        (date.getMonth() - dateDebut.getMonth());
+
+      if (moisDepuisDebut === 0 && date.getDate() < dateDebut.getDate()) {
+        return 0;
+      }
+
+      if (moisDepuisDebut === 0 && date.getDate() >= dateDebut.getDate()) {
+        moisDepuisDebut = 1;
+        return 0;
+      }
+      const valeurTotal = moisDepuisDebut * this.valeurConstante;
+      return valeurTotal;
+    } else {
+      const tauxAmortissement = this.tauxAmortissement
+        ? this.tauxAmortissement / 100
+        : 0;
+      const valeurInitiale = this.valeur;
+
+      const joursDepuisDebut = Math.max(
+        (date - dateDebut) / (1000 * 60 * 60 * 24),
+        0
+      );
+      const joursTotal = (dateFin - dateDebut) / (1000 * 60 * 60 * 24);
+
+      const valeurActuelle =
+        valeurInitiale *
+        Math.pow(1 - tauxAmortissement / 365, joursDepuisDebut);
+      return Math.max(valeurActuelle, 0);
+    }
   }
 }

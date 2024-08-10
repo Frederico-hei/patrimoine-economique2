@@ -19,6 +19,7 @@ export default class Flux extends Possession {
 
 
   getValeur(date) {
+
     const nombreDeMois = (debut, dateEvaluation, jourJ) => {
       let compteur = 0;
 
@@ -35,12 +36,10 @@ export default class Flux extends Possession {
       compteur += Math.max(0, totalMois);
 
       return compteur;
-    };
+    }
 
-    // Calculer le montant total sans modifier this.valeur
-    const totalMois = nombreDeMois(this.dateDebut, date, this.jour);
-    const montantTotal = totalMois * this.valeurConstante;
+    this.valeur = nombreDeMois(this.dateDebut, date, this.jour) * this.valeurConstante;
 
-    return montantTotal;
+    return this.valeur;
   }
 }
