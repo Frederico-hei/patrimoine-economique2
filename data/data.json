@@ -3,10 +3,16 @@
   {
     "model": "Patrimoine",
     "data": {
-      "possesseur": { "nom": "John Doe" },
+      "possesseur": {
+        "nom": "John Doe"
+      },
       "possessions": [
         {
-          "possesseur": { "nom": "John Doe" },
+          "possesseur": {
+            "nom": {
+              "nom": "John Doe"
+            }
+          },
           "libelle": "MacBook Pro",
           "valeur": 4000000,
           "dateDebut": "2023-12-25T00:00:00.000Z",
@@ -14,30 +20,42 @@
           "tauxAmortissement": 5
         },
         {
-          "possesseur": { "nom": "John Doe" },
+          "possesseur": {
+            "nom": {
+              "nom": "John Doe"
+            }
+          },
           "libelle": "Alternance",
           "valeur": 0,
           "dateDebut": "2022-12-31T21:00:00.000Z",
           "dateFin": null,
           "tauxAmortissement": null,
-          "jour": 1,
-          "valeurConstante": 500000
+          "valeurConstante": 500000,
+          "jour": 1
         },
         {
-          "possesseur": { "nom": "John Doe" },
+          "possesseur": {
+            "nom": {
+              "nom": "John Doe"
+            }
+          },
           "libelle": "Survie",
           "valeur": 0,
           "dateDebut": "2022-12-31T21:00:00.000Z",
           "dateFin": null,
           "tauxAmortissement": null,
-          "jour": 2,
-          "valeurConstante": -300000
+          "valeurConstante": -300000,
+          "jour": 2
         },
         {
-          "possesseur": { "nom": "John Doe" },
+          "possesseur": {
+            "nom": {
+              "nom": "John Doe"
+            }
+          },
           "libelle": "Television",
           "valeur": 300000,
-          "dateDebut": "2022-12-25T00:00:00.000Z",
+          "dateDebut": "2023-12-31T21:00:00.000Z",
           "dateFin": null,
           "tauxAmortissement": 10
         }
