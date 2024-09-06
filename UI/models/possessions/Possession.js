@@ -8,6 +8,7 @@ export default class Possession {
     this.dateFin = dateFin ? new Date(dateFin) : null;
     this.tauxAmortissement = tauxAmortissement;
     this.valeurConstante = valeurConstante;
+    this.jour = null;
   }
 
   getValeur(date) {
@@ -19,6 +20,9 @@ export default class Possession {
     const dateDebut = this.dateDebut;
     const dateFin = this.dateFin ? this.dateFin : date;
 
+    if (this.dateFin && date > this.dateFin) {
+      return 0;
+  }
     if (date < dateDebut) return 0;
 
     if (this.valeurConstante) {

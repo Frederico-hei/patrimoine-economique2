@@ -1,204 +1,153 @@
 import React, { useState } from 'react';
-import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
+import axios from 'axios';
+import { Button, Form } from 'react-bootstrap';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const AddPossessionForm = () => {
-  const [formData, setFormData] = useState({
-    nom: '',
-    libelle: '',
-    valeur: '',
-    dateDebut: '',
-    dateFin: '',
-    taux: '',
-    valeurConstante: '',
-    jour: '',
-  });
-
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
+    const [formState, setFormState] = useState({
+        nomPossesseur: '',
+        libelle: '',
+        valeur: '',
+        dateDebut: new Date(),
+        dateFin: null,
+        tauxAmortissement: '',
+        valeurConstante: '',
+        jour: ''
     });
-  };
 
-  const validateForm = () => {
-    const { nom, libelle, valeur, dateDebut, taux } = formData;
-    if (!nom || !libelle || !valeur || !dateDebut || !taux) {
-      return 'Tous les champs marqués comme requis doivent être remplis.';
-    }
-    return '';
-  };
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormState(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-  
-    try {
-      const response = await axios.post('http://localhost:3000/api/possessions', {
-        nom: formData.nom,
-        libelle: formData.libelle,
-        valeur: parseFloat(formData.valeur),
-        dateDebut: formData.dateDebut,
-        dateFin: formData.dateFin,
-        taux: parseFloat(formData.taux),
-        valeurConstante: formData.valeurConstante ? parseFloat(formData.valeurConstante) : undefined,
-        jour: formData.jour ? parseInt(formData.jour, 10) : undefined
-      });
-  
-      if (response.status === 201) {
-        setSuccess('Possession ajoutée avec succès');
-        setError('');
-        setFormData({
-          nom: '',
-          libelle: '',
-          valeur: '',
-          dateDebut: '',
-          dateFin: '',
-          taux: '',
-          valeurConstante: '',
-          jour: '',
-        });
-      }
-    } catch (error) {
-      if (error.response) {
-        setError(`Erreur lors de l'ajout de la possession: ${error.response.data.error || 'Erreur inconnue'}`);
-      } else if (error.request) {
-        setError('Erreur lors de l\'ajout de la possession : Pas de réponse du serveur');
-      } else {
-        setError('Erreur lors de l\'ajout de la possession');
-      }
-      setSuccess('');
-    }
-  };
-  
-  
-  
+    const handleDateChange = (date, name) => {
+        setFormState(prevState => ({
+            ...prevState,
+            [name]: date
+        }));
+    };
 
-  return (
-    <Container className="my-4">
-      <h2 className="mb-4">Créer une Possession</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
-      <Form onSubmit={handleSubmit}>
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formNom">
-              <Form.Label>Nom du Possesseur</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Entrez le nom du possesseur"
-                name="nom"
-                value={formData.nom}
-                onChange={handleChange}
-                required
-              />
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        const formData = {
+            possesseur: {
+                nom: formState.nomPossesseur
+            },
+            libelle: formState.libelle,
+            valeur: Number(formState.valeur),
+            dateDebut: formState.dateDebut.toISOString(),
+            dateFin: formState.dateFin ? formState.dateFin.toISOString() : null,
+            tauxAmortissement: formState.tauxAmortissement ? Number(formState.tauxAmortissement) : null,
+            valeurConstante: formState.valeurConstante ? Number(formState.valeurConstante) : null,
+            jour: formState.jour ? Number(formState.jour) : null
+        };
+
+        try {
+            const response = await axios.post('http://localhost:3000/api/possessions', formData);
+            console.log('Possession ajoutée:', response.data);
+        } catch (error) {
+            console.error('Erreur lors de l\'ajout de la possession:', error);
+        }
+    };
+
+    return (
+        <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="formNomPossesseur">
+                <Form.Label>Nom du Possesseur</Form.Label>
+                <Form.Control
+                    type="text"
+                    name="nomPossesseur"
+                    value={formState.nomPossesseur}
+                    onChange={handleChange}
+                    placeholder="Entrez le nom du possesseur"
+                />
             </Form.Group>
-          </Col>
-          <Col md={6}>
+
             <Form.Group controlId="formLibelle">
-              <Form.Label>Libellé</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Entrez le libellé de la possession"
-                name="libelle"
-                value={formData.libelle}
-                onChange={handleChange}
-                required
-              />
+                <Form.Label>Libellé</Form.Label>
+                <Form.Control
+                    type="text"
+                    name="libelle"
+                    value={formState.libelle}
+                    onChange={handleChange}
+                    placeholder="Entrez le libellé"
+                />
             </Form.Group>
-          </Col>
-        </Row>
-        <Row className="mb-3">
-          <Col md={6}>
+
             <Form.Group controlId="formValeur">
-              <Form.Label>Valeur</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Entrez la valeur de la possession"
-                name="valeur"
-                value={formData.valeur}
-                onChange={handleChange}
-                required
-              />
+                <Form.Label>Valeur</Form.Label>
+                <Form.Control
+                    type="number"
+                    name="valeur"
+                    value={formState.valeur}
+                    onChange={handleChange}
+                    placeholder="Entrez la valeur"
+                />
             </Form.Group>
-          </Col>
-          <Col md={6}>
+
             <Form.Group controlId="formDateDebut">
-              <Form.Label>Date Début</Form.Label>
-              <Form.Control
-                type="date"
-                name="dateDebut"
-                value={formData.dateDebut}
-                onChange={handleChange}
-                required
-              />
+                <Form.Label>Date de Début</Form.Label>
+                <DatePicker
+                    selected={formState.dateDebut}
+                    onChange={(date) => handleDateChange(date, 'dateDebut')}
+                    className="form-control"
+                />
             </Form.Group>
-          </Col>
-        </Row>
-        <Row className="mb-3">
-          <Col md={6}>
+
             <Form.Group controlId="formDateFin">
-              <Form.Label>Date Fin</Form.Label>
-              <Form.Control
-                type="date"
-                name="dateFin"
-                value={formData.dateFin}
-                onChange={handleChange}
-              />
+                <Form.Label>Date de Fin</Form.Label>
+                <DatePicker
+                    selected={formState.dateFin}
+                    onChange={(date) => handleDateChange(date, 'dateFin')}
+                    className="form-control"
+                    placeholderText="Sélectionnez une date de fin (facultatif)"
+                />
             </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="formTaux">
-              <Form.Label>Taux d'Amortissement</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Entrez le taux d'amortissement"
-                name="taux"
-                value={formData.taux}
-                onChange={handleChange}
-                required
-              />
+
+            <Form.Group controlId="formTauxAmortissement">
+                <Form.Label>Taux d'Amortissement</Form.Label>
+                <Form.Control
+                    type="number"
+                    name="tauxAmortissement"
+                    value={formState.tauxAmortissement}
+                    onChange={handleChange}
+                    placeholder="Entrez le taux d'amortissement"
+                />
             </Form.Group>
-          </Col>
-        </Row>
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formJour">
-              <Form.Label>Jour</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Entrez le jour (optionnel)"
-                name="jour"
-                value={formData.jour}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
+
             <Form.Group controlId="formValeurConstante">
-              <Form.Label>Valeur Constante</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Entrez la valeur constante (optionnel)"
-                name="valeurConstante"
-                value={formData.valeurConstante}
-                onChange={handleChange}
-              />
+                <Form.Label>Valeur Constante</Form.Label>
+                <Form.Control
+                    type="number"
+                    name="valeurConstante"
+                    value={formState.valeurConstante}
+                    onChange={handleChange}
+                    placeholder="Entrez la valeur constante"
+                />
             </Form.Group>
-          </Col>
-        </Row>
-        <Button variant="primary" type="submit">Ajouter la Possession</Button>
-      </Form>
-    </Container>
-  );
+
+            <Form.Group controlId="formJour">
+                <Form.Label>Jour</Form.Label>
+                <Form.Control
+                    type="number"
+                    name="jour"
+                    value={formState.jour}
+                    onChange={handleChange}
+                    placeholder="Entrez le jour"
+                />
+            </Form.Group>
+
+            <Button variant="primary" type="submit">
+                Ajouter Possession
+            </Button>
+        </Form>
+    );
 };
 
 export default AddPossessionForm;
