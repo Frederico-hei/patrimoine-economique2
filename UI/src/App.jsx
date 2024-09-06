@@ -85,7 +85,7 @@ export default function App() {
 
   const handleDelete = async (libelle) => {
     try {
-      const response = await axios.delete(`http://localhost:3000/api/possessions/${libelle}`);
+      const response = await axios.delete(`https://patrimoine-backend-6npq.onrender.com/api/possessions/${libelle}`);
       if (response.status === 200) {
         // Mettre à jour l'état local après la suppression réussie
         setPatrimoines((prevPatrimoines) =>
@@ -111,7 +111,7 @@ export default function App() {
     }
   
     try {
-      const response = await fetch(`http://localhost:3000/api/patrimoines/${selectedPersonne}/possessions/${libelle}/close`, {
+      const response = await fetch(`https://patrimoine-backend-6npq.onrender.com/api/patrimoines/${selectedPersonne}/possessions/${libelle}/close`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ export default function App() {
 
   const handleUpdateDateFin = async () => {
     try {
-        const response = await fetch(`http://localhost:3000/api/possessions/${selectedPersonne}/${editingLibelle}/dateFin`, {
+        const response = await fetch(`https://patrimoine-backend-6npq.onrender.com/api/possessions/${selectedPersonne}/${editingLibelle}/dateFin`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
