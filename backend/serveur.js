@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = 3000;
-const dataFilePath = path.resolve(__dirname, '../data/data.json');
+const dataFilePath = path.resolve(__dirname, './data/data.json');
 const Possession = './models/possessions/Possession'
 const Patrimoine = './models/Patrimoine.js';
 
@@ -199,11 +199,9 @@ app.patch('/api/possessions/:possesseur/:libelle/dateFin', (req, res) => {
     });
 });
 
-
-// Route PATCH pour mettre à jour la date de fin d'une possession
-app.patch('/api/possessions/:possesseur/:oldLibelle', (req, res) => {
-    const { possesseur, oldLibelle } = req.params;
-    const { newLibelle, dateFin } = req.body;
+app.patch('/api/patrimoines/:possesseur/possessions/:libelle/close', (req, res) => {
+    const { possesseur, libelle } = req.params;
+    const today = new Date();  // Utilisation de la date actuelle
 
     fs.readFile(dataFilePath, 'utf-8', (err, data) => {
         if (err) {
@@ -222,17 +220,16 @@ app.patch('/api/possessions/:possesseur/:oldLibelle', (req, res) => {
             return res.status(404).json({ message: 'Patrimoine non trouvé pour ce possesseur.' });
         }
 
-        // Trouver la possession par l'ancien libellé
+        // Trouver la possession par libellé
         const patrimoine = jsonData[patrimoineIndex].data;
-        const possession = patrimoine.possessions.find(p => p.libelle === oldLibelle);
+        const possession = patrimoine.possessions.find(p => p.libelle === libelle);
 
         if (!possession) {
             return res.status(404).json({ message: 'Possession non trouvée.' });
         }
 
-        // Mettre à jour le libellé et la date de fin
-        possession.libelle = newLibelle || possession.libelle;
-        possession.dateFin = dateFin ? new Date(dateFin) : possession.dateFin;
+        // Mettre à jour la date de fin avec la date actuelle
+        possession.dateFin = today.toISOString();
         possessionFound = true;
 
         // Écrire les données mises à jour dans le fichier JSON
@@ -241,11 +238,10 @@ app.patch('/api/possessions/:possesseur/:oldLibelle', (req, res) => {
                 return res.status(500).json({ error: 'Erreur lors de l\'écriture dans le fichier' });
             }
 
-            res.status(200).json({ message: 'Possession mise à jour avec succès.', patrimoine });
+            res.status(200).json({ message: 'Possession clôturée avec succès.', possession });
         });
     });
 });
-
 
 
 

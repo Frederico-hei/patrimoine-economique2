@@ -6,7 +6,7 @@ import ApplyButton from "./components/ApplyButton";
 import PatrimoineTable from "./components/PatrimoineTable";
 import EditDateFinForm from "./components/EditDateFinForm";
 import PatrimoineChartWrapper from "./components/PatrimoineChartWrapper";
-import data from "../../data/data.json";
+import data from "../../backend/data/data.json";
 import Personne from "../models/Personne";
 import Patrimoine from "../models/Patrimoine";
 import BienMateriel from "../models/possessions/BienMateriel";
@@ -111,7 +111,7 @@ export default function App() {
     }
   
     try {
-      const response = await fetch(`http://localhost:3000/api/patrimoines/${selectedPersonne}/possession/${libelle}/close`, {
+      const response = await fetch(`http://localhost:3000/api/patrimoines/${selectedPersonne}/possessions/${libelle}/close`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
